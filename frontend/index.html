@@ -3,162 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Notes App 🚀</title>
+    <title>הפתקים שלי בענן</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
         }
         .container {
-            background-color: white;
+            background: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             width: 100%;
             max-width: 500px;
+            text-align: center;
         }
         h1 {
-            text-align: center;
             color: #333;
-            margin-top: 0;
+            font-size: 28px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
-        .input-group {
+        .input-area {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
-        input[type="text"] {
+        input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
+            outline: none;
         }
         button {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 12px 25px;
+            border-radius: 8px;
             font-size: 16px;
+            cursor: pointer;
             font-weight: bold;
         }
         button:hover {
             background-color: #0056b3;
         }
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
         }
-        li {
-            background-color: #f9f9f9;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+        .note-item {
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 5px;
-            margin-bottom: 8px;
+            text-align: right;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .delete-btn {
             background-color: #dc3545;
-            padding: 5px 10px;
+            padding: 6px 12px;
             font-size: 14px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
         .delete-btn:hover {
             background-color: #bd2130;
+        }
+        .status-msg {
+            color: #666;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>הפתקים שלי בענן ☁️</h1>
-    
-    <div class="input-group">
-        <input type="text" id="noteInput" placeholder="כתוב פתק חדש...">
-        <button onclick="addNote()">הוסף</button>
+    <div class="container">
+        <h1>☁️ הפתקים שלי בענן</h1>
+        
+        <div class="input-area">
+            <input type="text" id="noteInput" placeholder="כתוב פתק חדש...">
+            <button onclick="addNote()">הוסף</button>
+        </div>
+
+        <div id="notesList" class="notes-list">
+            <p class="status-msg">טוען פתקים מהענן...</p>
+        </div>
     </div>
 
-    <ul id="notesList">
-        <!-- פתקים יתווספו כאן דינמית -->
-    </ul>
-</div>
+    <script>
+        const API_URL = 'https://0ekl5z0y50.execute-api.us-east-1.amazonaws.com/prod/notes';
 
-<script>
-    // כתובת ה-API Gateway שלכם (נעדכן אותה ברגע שנקים את ה-API ב-AWS)
-    const API_URL = 'https://0ekl5z0y50.execute-api.us-east-1.amazonaws.com/prod';
+        // 1. טעינת פתקים (GET)
+        function loadNotes() {
+            fetch(API_URL)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(notes => {
+                    const notesList = document.getElementById('notesList');
+                    notesList.innerHTML = '';
+                    
+                    if (notes.length === 0) {
+                        notesList.innerHTML = '<p class="status-msg">אין פתקים בענן. מצאתם זמן להוסיף אחד!</p>';
+                        return;
+                    }
 
-    // פונקציה לטעינת כל הפתקים מהענן מיד כשהדף עולה
-    async function loadNotes() {
-        const notesList = document.getElementById('notesList');
-        notesList.innerHTML = '<li>טוען פתקים...</li>';
-        
-        try {
-            // בשלב הבא נשחרר את ה-fetch האמיתי מול ה-API Gateway
-             const response = await fetch(`${API_URL}/notes`);
-             const notes = await response.json();
-            
-            // כרגע נציג פתק דמו זמני כדי לראות שה-UI עובד פיקס:
-            const mockNotes = [{taskId: "1", title: "ברוכים הבאים לאפליקציית הענן שלכם!"}];
-            
-            notesList.innerHTML = '';
-            mockNotes.forEach(note => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${note.title}</span>
-                    <button class="delete-btn" onclick="deleteNote('${note.taskId}')">מחק</button>
-                `;
-                notesList.appendChild(li);
+                    notes.forEach(note => {
+                        const noteText = note.title || note.content || 'פתק ללא תוכן';
+                        const idToDelete = note.taskId || note.id;
+                        const item = document.createElement('div');
+                        item.className = 'note-item';
+                        item.innerHTML = `
+                            <span>${noteText}</span>
+                            <button class="delete-btn" onclick="deleteNote('${idToDelete}')">מחק</button>
+                        `;
+                        notesList.appendChild(item);
+                    });
+                })
+                .catch(err => {
+                    document.getElementById('notesList').innerHTML = '<p class="status-msg" style="color:red;">שגיאה בטעינת הנתונים</p>';
+                });
+        }
+
+        // 2. הוספת פתק (POST)
+        function addNote() {
+            const input = document.getElementById('noteInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: text })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(() => {
+                input.value = '';
+                loadNotes();
+            })
+            .catch(err => {
+                alert('שגיאה בשמירת הפתק בענן');
             });
-        } catch (error) {
-            console.error('Error loading notes:', error);
-            notesList.innerHTML = '<li>שגיאה בטעינת הנתונים</li>';
         }
-    }
 
-    // פונקציה להוספת פתק חדש
-    async function addNote() {
-        const input = document.getElementById('noteInput');
-        const title = input.value.trim();
-        
-        if (!title) return;
-
-        try {
-            console.log('מוסיף פתק:', title);
-            // כאן נשלח בעתיד בקשת POST ל-API Gateway:
-            // await fetch(`${API_URL}/notes`, {
-            //     method: 'POST',
-            //     body: JSON.stringify({ title: title })
-            // });
-
-            input.value = '';
-            alert('הקוד מוכן לחיבור! בשלב הבא נחבר אותו ל-AWS API Gateway.');
-        } catch (error) {
-            console.error('Error adding note:', error);
+        // 3. מחיקת פתק אמיתית (DELETE)
+        function deleteNote(taskId) {
+            fetch(API_URL, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskId: taskId })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(() => {
+                loadNotes(); // רענון אוטומטי של הרשימה לאחר המחיקה
+            })
+            .catch(err => {
+                alert('שגיאה במחיקת הפתק מהענן');
+            });
         }
-    }
 
-    // פונקציה למחיקת פתק
-    async function deleteNote(taskId) {
-        try {
-            console.log('מוחק פתק מזהה:', taskId);
-            // כאן נשלח בעתיד בקשת DELETE ל-API Gateway:
-            // await fetch(`${API_URL}/notes/${taskId}`, { method: 'DELETE' });
-        } catch (error) {
-            console.error('Error deleting note:', error);
-        }
-    }
-
-    // הפעלת טעינת הפתקים מייד עם פתיחת האתר
-    window.onload = loadNotes;
-</script>
-
+        window.onload = loadNotes;
+    </script>
 </body>
 </html>
