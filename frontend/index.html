@@ -93,7 +93,7 @@
 
 <script>
     // כתובת ה-API Gateway שלכם (נעדכן אותה ברגע שנקים את ה-API ב-AWS)
-    const API_URL = 'YOUR_API_GATEWAY_URL_HERE';
+    const API_URL = 'https://0ekl5z0y50.execute-api.us-east-1.amazonaws.com/prod';
 
     // פונקציה לטעינת כל הפתקים מהענן מיד כשהדף עולה
     async function loadNotes() {
@@ -102,8 +102,8 @@
         
         try {
             // בשלב הבא נשחרר את ה-fetch האמיתי מול ה-API Gateway
-            // const response = await fetch(`${API_URL}/notes`);
-            // const notes = await response.json();
+             const response = await fetch(`${API_URL}/notes`);
+             const notes = await response.json();
             
             // כרגע נציג פתק דמו זמני כדי לראות שה-UI עובד פיקס:
             const mockNotes = [{taskId: "1", title: "ברוכים הבאים לאפליקציית הענן שלכם!"}];
