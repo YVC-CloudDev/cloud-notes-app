@@ -32,4 +32,4 @@ jobs:
       # 4. ניקוי אוטומטי של הזיכרון (Invalidation) ב-CloudFront כדי שהאתר יתעדכן מיד
       - name: Clear CloudFront Cache (Invalidation)
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*" --no-cli-pager
