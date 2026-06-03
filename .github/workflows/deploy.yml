@@ -1,0 +1,35 @@
+name: Deploy Frontend to AWS (CI/CD)
+
+on:
+  push:
+    branches:
+      - main  # הצינור ירוץ אוטומטית בכל push לענף הראשי
+
+permissions:
+  id-token: write  # חובה עבור חיבור מאובטח בשיטת OIDC
+  contents: read
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. משיכת הקוד העדכני מהרפוזיטורי בגיטהאב
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. התחברות מאובטחת ל-AWS באמצעות תפקיד (OIDC) כפי שנדרש במצגת הקורס
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 3. העלאה אוטומטית של קבצי תיקיית הפרונטאנד ישירות לבאקט ה-S3 שלכם
+      - name: Deploy Frontend to S3 Bucket
+        run: |
+          aws s3 sync ./frontend s3://${{ secrets.FRONTEND_BUCKET_NAME }} --delete
+
+      # 4. ניקוי אוטומטי של הזיכרון (Invalidation) ב-CloudFront כדי שהאתר יתעדכן מיד
+      - name: Clear CloudFront Cache (Invalidation)
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
