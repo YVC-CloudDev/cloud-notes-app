@@ -1,8 +1,9 @@
-CloudNotesApp — אפליקציית פתקים ומשימות בטכנולוגיית Serverless ב-AWS
+# CloudNotesApp — אפליקציית פתקים ומשימות בטכנולוגיית Serverless ב-AWS
 
 מערכת לניהול פתקים ומשימות המבוססת כולה על ארכיטקטורת Serverless בענן של AWS. האפליקציה מאפשרת למשתמשים ליצור, לקרוא ולמחוק פתקים בזמן אמת באופן מאובטח, תוך הפרדה מלאה בין ה-Frontend ל-Backend לצורך השגת מהירות, שרידות וחיסכון במשאבים.
 
-🔗 **קישור לאפליקציה החיה:** https://cloudnotesapp.proj.rotem.click
+🔗 **קישור לאפליקציה החיה:** [cloudnotesapp.proj.rotem.click](https://cloudnotesapp.proj.rotem.click)
+
 👥 **מפתחים:** נועם אופק ונועה גיבלי
 🏫 **מוסד אקדמי:** המכללה האקדמית עמק יזרעאל
 
@@ -68,12 +69,12 @@ cloud-notes-app/
 
 הנתונים נשמרים בטבלה מנוהלת בשם `cloud-notes-table` הפועלת במודל On-Demand (משאבים ותמחור לפי שימוש בפועל).
 
-| שם השדה   | סוג הנתון | תפקיד                  | תיאור                                 |
-| :-------- | :-------- | :--------------------- | :------------------------------------ |
-| `taskId`  | `String`  | **Partition Key (PK)** | מזהה ייחודי שנוצר עבור כל פתק במערכת. |
-| `id`      | `String`  | Attribute              | מזהה פנימי תואם.                      |
-| `title`   | `String`  | Attribute              | כותרת הפתק שהמשתמש הזין.              |
-| `content` | `String`  | Attribute              | תוכן הפתק שהמשתמש הזין.               |
+| שם השדה   | סוג הנתון | תפקיד                  | תיאור                                |
+| :-------- | :-------- | :--------------------- | :----------------------------------- |
+| `taskId`  | `String`  | **Partition Key (PK)** | מזהה ייחודי שנוצר עבור כל פתק במערכת |
+| `id`      | `String`  | Attribute              | מזהה פנימי תואם                      |
+| `title`   | `String`  | Attribute              | כותרת הפתק שהמשתמש הזין              |
+| `content` | `String`  | Attribute              | תוכן הפתק שהמשתמש הזין               |
 
 ---
 
@@ -84,11 +85,12 @@ cloud-notes-app/
 1. **חיבור מאובטח ל-GitHub Actions (OIDC):**
 
    * זיהוי הצינור מול AWS מתבצע ללא שימוש במפתחות קשיחים (AWS Access Keys) בהגדרות הרפוזיטורי.
-   * במקום זאת, מוגדר רול ייעודי המשתמש ב-OpenID Connect (OIDC) כדי לאפשר לגיטהאב לבצע אימות זמני ומאובטח מול AWS.
+   * במקום זאת, מוגדר רול ייעודי בשם `GithubActionsRole-Demo` המשתמש ב-OpenID Connect (OIDC) כדי לאפשר לגיטהאב לבצע אימות זמני ומאובטח מול AWS.
    * יחסי האמון (Trust Boundary) מוגדרים כך שרק הרפוזיטורי הספציפי שלכם מורשה להשתמש ברול זה: `repo:YVC-CloudDev/cloud-notes-app:*`.
+
 2. **הרשאות פונקציית הלמדא:**
 
-   * הפונקציה משתמשת ברול ייעודי קשיח (`cloud-notes-backend-role-rwkfszjp`).
+   * הפונקציה משתמשת ברול ייעודי קשיח בשם `cloud-notes-backend-role-rwkfszjp`.
    * הרול מעניק לה אך ורק את ההרשאות הנדרשות לפעילותה: כתיבה וקריאה מטבלת הדינמו (`AmazonDynamoDBFullAccess`) וכתיבת לוגים ל-CloudWatch (`AWSLambdaBasicExecutionRole`).
 
 ---
